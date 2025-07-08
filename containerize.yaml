@@ -1,0 +1,23 @@
+_schema-version: '1.0'
+repository: <your-container-registry-server>
+tag: latest
+before-all:
+  - npx cds build --production
+  - mvn clean package -DskipTests=true --batch-mode
+modules:
+  - name: Project-srv
+    build-parameters:
+      buildpack:
+        builder: builder-jammy-base
+        path: srv/target/Project-exec.jar
+        env:
+          SPRING_PROFILES_ACTIVE: cloud
+          BP_JVM_VERSION: 21
+  - name: Project-hana-deployer
+    build-parameters:
+      buildpack:
+        type: nodejs
+        builder: builder-jammy-base
+        path: db
+        env:
+          BP_NODE_RUN_SCRIPTS: ""
